@@ -118,6 +118,11 @@ h3 {
     opacity 0.2s ease;
   touch-action: manipulation;
 }
+.btn svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
 .btn:active {
   transform: scale(0.97);
 }
@@ -311,6 +316,10 @@ h3 {
   to {
     transform: translate3d(var(--drift, 20px), 105vh, 0);
   }
+}
+
+[hidden] {
+  display: none !important;
 }
 
 .visually-hidden {
