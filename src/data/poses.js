@@ -308,6 +308,66 @@ export const POSE_SETS = [
       { title: 'and who but my lady greensleeves', instruction: 'Take a royal bow and curtsy' },
     ],
   },
+
+  // ---------------------------------------------------------------- Modern love songs (2010+)
+  // These songs are copyrighted, so only their titles are used, never lines from the lyrics.
+  // The poses are our own ideas inspired by each song.
+  {
+    id: 'firstdance',
+    category: 'love',
+    name: 'First Dance',
+    description: '4 shots · wedding-song hits',
+    footer: 'our first dance',
+    poses: [
+      { title: 'perfect', instruction: 'Ed Sheeran · Slow dance, foreheads together' },
+      { title: 'all of me', instruction: 'John Legend · Wrap your arms around each other' },
+      { title: 'thinking out loud', instruction: 'Ed Sheeran · Act 70 years old, still holding hands' },
+      { title: 'a thousand years', instruction: 'Christina Perri · One dips the other like a dance' },
+    ],
+  },
+  {
+    id: 'goldenhour',
+    category: 'love',
+    name: 'Golden Hour',
+    description: '4 shots · 2020s love songs',
+    footer: 'golden hour',
+    poses: [
+      { title: 'golden hour', instruction: 'JVKE · Cheek to cheek, soft glowy smiles' },
+      { title: 'until i found you', instruction: 'Stephen Sanchez · One twirls the other' },
+      { title: 'die with a smile', instruction: 'Lady Gaga & Bruno Mars · Your biggest smiles ever' },
+      { title: 'birds of a feather', instruction: 'Billie Eilish · Flap your arms like two little birds' },
+    ],
+  },
+  {
+    id: 'popromance',
+    category: 'love',
+    name: 'Pop Romance',
+    description: '4 shots · 2010s love hits',
+    footer: 'just the way you are',
+    poses: [
+      { title: 'just the way you are', instruction: 'Bruno Mars · One stares at the other, totally in awe' },
+      { title: 'marry you', instruction: 'Bruno Mars · Down on one knee, fake proposal' },
+      { title: 'lover', instruction: 'Taylor Swift · Make a heart together with your hands' },
+      { title: 'adore you', instruction: 'Harry Styles · Squish each other’s cheeks' },
+    ],
+  },
+  {
+    id: 'playlist',
+    category: 'love',
+    name: 'Love Playlist',
+    description: '8 shots · two strips · hits since 2010',
+    footer: 'our love playlist',
+    poses: [
+      { title: 'photograph', instruction: 'Ed Sheeran · Pretend to take a photo of each other' },
+      { title: 'treasure', instruction: 'Bruno Mars · Hold them like your greatest treasure' },
+      { title: 'best part', instruction: 'Daniel Caesar & H.E.R. · Point at each other and smile' },
+      { title: 'shallow', instruction: 'Lady Gaga & Bradley Cooper · Dramatic duet into a pretend mic' },
+      { title: 'sunroof', instruction: 'Nicky Youre & dazy · Pretend you’re driving with the windows down' },
+      { title: 'love me like you do', instruction: 'Ellie Goulding · Big movie-style hug' },
+      { title: "say you won't let go", instruction: 'James Arthur · Hold on tight, don’t let go' },
+      { title: 'beautiful things', instruction: 'Benson Boone · One lifts the other, or tries to' },
+    ],
+  },
 ];
 
 export const getPoseSet = (id) => POSE_SETS.find((s) => s.id === id) ?? POSE_SETS[0];
