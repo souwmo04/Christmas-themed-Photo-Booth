@@ -12,10 +12,12 @@ Everything happens on your device. No sign-up, no uploads.
 
 - 🎞️ **Guided poses**: a script title and an instruction for every shot, with a 3-2-1 countdown
 - 📚 **9 pose sets**: Christmas Story, Classic Strip, Besties, Mistletoe Date, Family Christmas, Silly Faces, Cozy Night In, Christmas Party, Dear Santa
+- 💌 **4 love song sets** for couples (classic, public-domain songs): Let Me Call You Sweetheart, Daisy Bell, I Love You Truly, Greensleeves
 - 🎶 **8 carol lyric sets** (traditional, public-domain carols): Jingle Bells, Deck the Halls, We Wish You a Merry Christmas, Silent Night, Twelve Days of Christmas, Up on the Housetop, Joy to the World, O Christmas Tree. Each line of the song is the title, with a pose that acts it out
 - 🎨 **17 filters**: Classic B&W, Vintage, Candy Cane, Frosty, Warm Glow, Film Noir, Gingerbread, Hot Cocoa, Golden Hour, Mistletoe, Polaroid, Pine Forest, Silent Night, Silver Bells, Tinsel Pop, Retro 90s, No filter
 - 🧾 **Photo strips** with 13 designs (Candy cane, White, Red velvet, Snowflakes, Black, Tartan, Gingham, Fairy lights, Gift wrap, Holly, Gingerbread, Starry night, Film strip), your own caption and the date
 - 🎬 **Video edit**: the session recording with each photo dropping in, ending on your strip
+- 🎄 **Stickers**: 30 emoji stickers with a die-cut white edge; tap to add, undo or clear
 - 💾 **Save**: strip (PNG, print-ready 2×6"), single photos (JPG), video (MP4 or WebM)
 - 📱 **Phone friendly**: Save buttons download straight to your phone, a Share button sends to WhatsApp/Instagram or "Save to Photos", front/back camera switch
 - 🔍 **Real 0.5x zoom** on phones that allow it: uses the camera's wide zoom or ultra-wide lens (hidden when the phone doesn't share it with the browser)
