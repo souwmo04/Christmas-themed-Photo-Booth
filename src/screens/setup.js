@@ -1,8 +1,17 @@
-import { html, $, $$, escapeHtml, icons } from '../utils/dom.js';
+import { html, $, $$, escapeHtml, icons, toast } from '../utils/dom.js';
 import { state, savePrefs, resetSession } from '../state.js';
 import { POSE_SETS } from '../data/poses.js';
 import { FILTERS, applyPreview } from '../render/filters.js';
-import { startCamera, stopCamera, getStream, countCameras, cameraErrorMessage } from '../camera/camera.js';
+import {
+  startCamera,
+  stopCamera,
+  getStream,
+  countCameras,
+  cameraErrorMessage,
+  setZoom,
+  currentZoom,
+  hasWideZoom,
+} from '../camera/camera.js';
 import { boothWindowHtml, attachStream, setWindowMessage, setView, bindZoom } from '../ui/boothWindow.js';
 import { canRecord } from '../utils/device.js';
 
@@ -78,16 +87,36 @@ export function mountSetup(root, { go }) {
   const retryBtn = $('#retry', root);
   flipBtn.innerHTML = icons.flip;
 
+  const mirrored = () => state.mirror && state.facing === 'user';
+
   const refreshPreview = () => {
     applyPreview($('.window__feed', root), fx, state.filter);
-    setView(win, { zoom: state.zoom, mirror: state.mirror && state.facing === 'user' });
+    setView(win, { zoom: currentZoom(), mirror: mirrored(), zoomAvailable: hasWideZoom() });
   };
   refreshPreview();
 
-  bindZoom(win, (zoom) => {
-    state.zoom = zoom;
+  // Real zoom: changes the camera's zoom or switches to the ultra-wide lens.
+  async function applyZoom(zoom) {
+    const newStream = await setZoom(zoom);
+    if (newStream) await attachStream(video, newStream, mirrored());
+  }
+
+  let switching = false;
+  bindZoom(win, async (zoom) => {
+    if (switching || zoom === currentZoom()) return;
+    switching = true;
+    startBtn.disabled = true;
+    try {
+      await applyZoom(zoom);
+      state.zoom = zoom;
+      savePrefs();
+    } catch (err) {
+      console.error(err);
+      toast("Couldn't switch zoom on this camera");
+    }
     refreshPreview();
-    savePrefs();
+    startBtn.disabled = !getStream();
+    switching = false;
   });
 
   async function openCamera() {
@@ -96,7 +125,8 @@ export function mountSetup(root, { go }) {
     setWindowMessage(win, 'Starting camera…');
     try {
       const stream = await startCamera(state.facing);
-      await attachStream(video, stream, state.mirror && state.facing === 'user');
+      await attachStream(video, stream, mirrored());
+      if (state.zoom < 1 && hasWideZoom()) await applyZoom(0.5).catch(() => {});
       setWindowMessage(win, '');
       refreshPreview();
       startBtn.disabled = false;
