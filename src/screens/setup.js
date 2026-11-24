@@ -3,7 +3,7 @@ import { state, savePrefs, resetSession } from '../state.js';
 import { POSE_SETS } from '../data/poses.js';
 import { FILTERS, applyPreview } from '../render/filters.js';
 import { startCamera, stopCamera, getStream, countCameras, cameraErrorMessage } from '../camera/camera.js';
-import { boothWindowHtml, attachStream, setWindowMessage } from '../ui/boothWindow.js';
+import { boothWindowHtml, attachStream, setWindowMessage, setView, bindZoom } from '../ui/boothWindow.js';
 import { canRecord } from '../utils/device.js';
 
 export function mountSetup(root, { go }) {
@@ -79,9 +79,16 @@ export function mountSetup(root, { go }) {
   flipBtn.innerHTML = icons.flip;
 
   const refreshPreview = () => {
-    applyPreview(video, fx, state.filter);
-    video.classList.toggle('is-mirrored', state.mirror && state.facing === 'user');
+    applyPreview($('.window__feed', root), fx, state.filter);
+    setView(win, { zoom: state.zoom, mirror: state.mirror && state.facing === 'user' });
   };
+  refreshPreview();
+
+  bindZoom(win, (zoom) => {
+    state.zoom = zoom;
+    refreshPreview();
+    savePrefs();
+  });
 
   async function openCamera() {
     startBtn.disabled = true;
