@@ -2,7 +2,15 @@ import { html, $, wait, icons } from '../utils/dom.js';
 import { state, savePrefs } from '../state.js';
 import { getPoseSet } from '../data/poses.js';
 import { applyPreview, drawFiltered } from '../render/filters.js';
-import { getStream, stopCamera, captureFrame, isFrontCamera } from '../camera/camera.js';
+import {
+  getStream,
+  stopCamera,
+  captureFrame,
+  isFrontCamera,
+  getZoomSupport,
+  currentZoom,
+  setZoom,
+} from '../camera/camera.js';
 import { SessionRecorder } from '../camera/recorder.js';
 import { boothWindowHtml, attachStream, setWindowMessage, flash, setView, bindZoom } from '../ui/boothWindow.js';
 import { beep, shutter, unlockAudio } from '../utils/sound.js';
@@ -68,11 +76,20 @@ export function mountShoot(root, { go }) {
   const mirror = state.mirror && isFrontCamera();
   attachStream(video, stream, mirror);
   applyPreview($('.window__feed', root), $('.window__fx', root), state.filter);
-  setView(win, { zoom: state.zoom, mirror });
-  bindZoom(win, (zoom) => {
-    state.zoom = zoom;
-    setView(win, { zoom, mirror });
-    savePrefs();
+  // Zoom can change mid-shoot only when it's the camera's own zoom (same stream, recording keeps going).
+  // Switching lenses restarts the camera, so that's done on the setup screen instead.
+  const liveZoom = getZoomSupport().type === 'hardware';
+  const refreshView = () => setView(win, { zoom: currentZoom(), mirror, zoomAvailable: liveZoom });
+  refreshView();
+  bindZoom(win, async (zoom) => {
+    try {
+      await setZoom(zoom);
+      state.zoom = zoom;
+      savePrefs();
+    } catch (err) {
+      console.error(err);
+    }
+    refreshView();
   });
 
   const recorder = state.recordVideo ? new SessionRecorder(stream) : null;
@@ -125,7 +142,7 @@ export function mountShoot(root, { go }) {
   }
 
   function capture(i) {
-    const shot = captureFrame(video, { width: 1200, mirror, zoom: state.zoom });
+    const shot = captureFrame(video, { width: 1200, mirror });
     state.shots[i] = shot;
     state.shotTimes[i] = recorder?.available ? recorder.now() : 0;
     shutter();
