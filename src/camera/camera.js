@@ -8,7 +8,8 @@ export const getStream = () => stream;
 export async function startCamera(facing = 'user') {
   stopCamera();
   currentFacing = facing;
-  const base = { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } };
+  // Ask for 4:3: phone sensors are 4:3, and 16:9 is a crop of it, so 4:3 gives the widest view.
+  const base = { width: { ideal: 1280 }, height: { ideal: 960 }, frameRate: { ideal: 30 } };
   try {
     stream = await navigator.mediaDevices.getUserMedia({
       video: { ...base, facingMode: { ideal: facing } },
@@ -66,18 +67,45 @@ export function coverCrop(sw, sh, tw, th) {
   return { sx: (sw - w) / 2, sy: (sh - h) / 2, sw: w, sh: h };
 }
 
-// Grabs the current video frame as a 4:3 canvas (unfiltered), mirrored if asked.
-export function captureFrame(video, { width = 1200, mirror = false } = {}) {
+/**
+ * Draws a video frame into a w×h box at a zoom level.
+ * zoom 1 = fills the box (edges cropped); zoom 0.5 = zoomed out, showing more of the frame.
+ * Any empty space around the frame is filled with a soft blurred copy of it.
+ */
+export function drawZoomed(ctx, video, w, h, { zoom = 1, mirror = false } = {}) {
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  const scale = Math.max(w / vw, h / vh) * zoom;
+  const dw = vw * scale;
+  const dh = vh * scale;
+  ctx.save();
+  if (mirror) {
+    ctx.translate(w, 0);
+    ctx.scale(-1, 1);
+  }
+  if (dw < w - 1 || dh < h - 1) {
+    // Blur by shrinking a cover crop to a few pixels and stretching it back up (works in every browser).
+    const tiny = document.createElement('canvas');
+    tiny.width = 48;
+    tiny.height = Math.max(1, Math.round((48 * h) / w));
+    const c = coverCrop(vw, vh, tiny.width, tiny.height);
+    tiny.getContext('2d').drawImage(video, c.sx, c.sy, c.sw, c.sh, 0, 0, tiny.width, tiny.height);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(tiny, 0, 0, w, h);
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.fillRect(0, 0, w, h);
+  }
+  ctx.drawImage(video, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  ctx.restore();
+}
+
+// Grabs the current video frame as a 4:3 canvas (unfiltered), mirrored and zoomed as asked.
+export function captureFrame(video, { width = 1200, mirror = false, zoom = 1 } = {}) {
   const height = Math.round((width * 3) / 4);
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  const c = coverCrop(video.videoWidth, video.videoHeight, width, height);
-  if (mirror) {
-    ctx.translate(width, 0);
-    ctx.scale(-1, 1);
-  }
-  ctx.drawImage(video, c.sx, c.sy, c.sw, c.sh, 0, 0, width, height);
+  drawZoomed(canvas.getContext('2d'), video, width, height, { zoom, mirror });
   return canvas;
 }
