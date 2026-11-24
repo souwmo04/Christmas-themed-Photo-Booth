@@ -159,7 +159,10 @@ export function mountShoot(root, { go }) {
     goBtn.disabled = true;
     retakeBtn.disabled = true;
     setWindowMessage(win, 'Developing your photos…');
-    if (recorder?.available) state.rawVideo = await recorder.stop();
+    if (recorder?.available) {
+      const raw = await recorder.stop();
+      state.rawVideo = raw && { ...raw, mirror };
+    }
     go('result');
   }
 
