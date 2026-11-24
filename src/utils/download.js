@@ -3,6 +3,9 @@
 import { isMobile } from './device.js';
 import { wait } from './dom.js';
 
+// Show a Share button only on phones that can share files (Android Chrome, iPhone Safari).
+export const shareAvailable = () => isMobile && typeof navigator.canShare === 'function';
+
 export const canvasToBlob = (canvas, type = 'image/png', quality) =>
   new Promise((resolve, reject) =>
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Could not create image'))), type, quality),
@@ -34,11 +37,11 @@ export function canShareFiles(files) {
 }
 
 /**
- * Saves files. On phones, opens the share sheet; otherwise downloads each file.
- * Must be called straight from a tap (no long awaits before it) or phones block the share sheet.
+ * Saves files. Downloads them directly by default; with `preferShare` opens the phone share sheet instead.
+ * Sharing must be called straight from a tap (no long awaits before it) or phones block the share sheet.
  * @returns {'shared'|'downloaded'|'cancelled'}
  */
-export async function saveFiles(files, { preferShare = isMobile } = {}) {
+export async function saveFiles(files, { preferShare = false } = {}) {
   if (preferShare && canShareFiles(files)) {
     try {
       await navigator.share({ files, title: 'Christmas Photo Booth' });
