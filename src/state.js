@@ -12,6 +12,7 @@ const defaults = {
   mirror: true,
   sound: true,
   zoom: 1, // 1 or 0.5
+  flash: false,
 };
 
 function loadPrefs() {
@@ -32,11 +33,11 @@ export const state = {
 };
 
 export function savePrefs() {
-  const { poseSet, filter, border, facing, recordVideo, mirror, sound, zoom } = state;
+  const { poseSet, filter, border, facing, recordVideo, mirror, sound, zoom, flash } = state;
   try {
     localStorage.setItem(
       PREFS_KEY,
-      JSON.stringify({ poseSet, filter, border, facing, recordVideo, mirror, sound, zoom }),
+      JSON.stringify({ poseSet, filter, border, facing, recordVideo, mirror, sound, zoom, flash }),
     );
   } catch {
     /* private mode: preferences just aren't remembered */
