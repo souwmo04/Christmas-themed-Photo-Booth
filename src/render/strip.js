@@ -2,6 +2,9 @@
 // Each design ("border") is drawn in code, so strips stay sharp when printed.
 
 import { drawFiltered } from './filters.js';
+import { stickerSlots, drawSticker } from './stickers.js';
+
+const STICKER_SIZE = 92;
 
 export const BORDERS = [
   { id: 'candy', name: 'Candy cane' },
@@ -498,7 +501,7 @@ const THEMES = {
  * @param {HTMLCanvasElement[]} photos raw 4:3 photo canvases
  * @returns {HTMLCanvasElement} one strip
  */
-export function renderStrip(photos, { filter, border, caption, index = 0 }) {
+export function renderStrip(photos, { filter, border, caption, index = 0, stickers = [] }) {
   const theme = THEMES[border] ?? THEMES.classic;
   const n = photos.length;
   const h = PAD + n * PHOTO_H + (n - 1) * GAP + FOOTER;
@@ -559,7 +562,8 @@ export function renderStrip(photos, { filter, border, caption, index = 0 }) {
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = theme.ink;
   let size = 66;
-  const maxWidth = theme.label ? W - 160 : W - 80;
+  // Leave room for stickers beside the caption (sticker slots 2 and 4).
+  const maxWidth = stickers.length >= 2 ? W - 210 : theme.label ? W - 160 : W - 80;
   ctx.font = `${size}px "Pinyon Script", "Snell Roundhand", cursive`;
   while (ctx.measureText(caption).width > maxWidth && size > 30) {
     size -= 2;
@@ -572,15 +576,35 @@ export function renderStrip(photos, { filter, border, caption, index = 0 }) {
   if ('letterSpacing' in ctx) ctx.letterSpacing = '4px';
   ctx.fillText(formatDate(), W / 2, footerTop + 134 + shift);
 
+  // Stickers go on last, over photos and decorations.
+  if (stickers.length) {
+    const slots = stickerSlots({ W, PAD, PHOTO_W, PHOTO_H, GAP, n, footerTop });
+    stickers.forEach((emoji, k) => {
+      const slot = slots[k % slots.length];
+      // Past the last slot, nudge so repeats don't sit exactly on top of earlier ones.
+      const lap = Math.floor(k / slots.length);
+      drawSticker(ctx, emoji, slot.x + lap * 26, slot.y + lap * 22, STICKER_SIZE, k);
+    });
+  }
+
   return canvas;
 }
 
 // Splits photos into strips of 4 and renders each.
+// Stickers alternate between strips: 1st on strip 1, 2nd on strip 2, 3rd on strip 1…
 export async function renderStrips(photos, opts) {
   await ensureFonts();
+  const count = Math.ceil(photos.length / PER_STRIP);
+  const all = opts.stickers ?? [];
   const strips = [];
-  for (let i = 0; i < photos.length; i += PER_STRIP) {
-    strips.push(renderStrip(photos.slice(i, i + PER_STRIP), { ...opts, index: i / PER_STRIP }));
+  for (let s = 0; s < count; s++) {
+    strips.push(
+      renderStrip(photos.slice(s * PER_STRIP, (s + 1) * PER_STRIP), {
+        ...opts,
+        index: s,
+        stickers: all.filter((_, j) => j % count === s),
+      }),
+    );
   }
   return strips;
 }
