@@ -96,6 +96,22 @@ export async function setZoom(zoom) {
   return null;
 }
 
+// ---------- Flash ----------
+// The phone's flashlight ("torch"), which Chrome on Android can control on the back camera.
+export const hasTorch = () => !!track()?.getCapabilities?.().torch;
+
+export async function setTorch(on) {
+  if (!hasTorch()) return false;
+  // applyConstraints replaces earlier ones, so keep the current hardware zoom alongside the torch.
+  const keep = zoomSupport.type === 'hardware' ? { zoom: track().getSettings?.().zoom ?? 1 } : {};
+  try {
+    await track().applyConstraints({ advanced: [{ torch: on, ...keep }] });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function stopCamera() {
   stream?.getTracks().forEach((t) => t.stop());
   stream = null;
