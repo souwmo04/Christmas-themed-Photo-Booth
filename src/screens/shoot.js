@@ -1,10 +1,10 @@
 import { html, $, wait, icons } from '../utils/dom.js';
-import { state } from '../state.js';
+import { state, savePrefs } from '../state.js';
 import { getPoseSet } from '../data/poses.js';
 import { applyPreview, drawFiltered } from '../render/filters.js';
 import { getStream, stopCamera, captureFrame, isFrontCamera } from '../camera/camera.js';
 import { SessionRecorder } from '../camera/recorder.js';
-import { boothWindowHtml, attachStream, setWindowMessage, flash } from '../ui/boothWindow.js';
+import { boothWindowHtml, attachStream, setWindowMessage, flash, setView, bindZoom } from '../ui/boothWindow.js';
 import { beep, shutter, unlockAudio } from '../utils/sound.js';
 
 const READ_TIME = 1700; // ms to read the pose before the countdown
@@ -67,7 +67,13 @@ export function mountShoot(root, { go }) {
 
   const mirror = state.mirror && isFrontCamera();
   attachStream(video, stream, mirror);
-  applyPreview(video, $('.window__fx', root), state.filter);
+  applyPreview($('.window__feed', root), $('.window__fx', root), state.filter);
+  setView(win, { zoom: state.zoom, mirror });
+  bindZoom(win, (zoom) => {
+    state.zoom = zoom;
+    setView(win, { zoom, mirror });
+    savePrefs();
+  });
 
   const recorder = state.recordVideo ? new SessionRecorder(stream) : null;
   let generation = 0; // bumps whenever the running sequence must stop
@@ -119,7 +125,7 @@ export function mountShoot(root, { go }) {
   }
 
   function capture(i) {
-    const shot = captureFrame(video, { width: 1200, mirror });
+    const shot = captureFrame(video, { width: 1200, mirror, zoom: state.zoom });
     state.shots[i] = shot;
     state.shotTimes[i] = recorder?.available ? recorder.now() : 0;
     shutter();
