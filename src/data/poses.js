@@ -9,6 +9,7 @@
 export const CATEGORIES = [
   { id: 'poses', name: 'Fun poses' },
   { id: 'carols', name: 'Carol lyrics' },
+  { id: 'love', name: 'Love songs' },
 ];
 
 export const POSE_SETS = [
@@ -250,6 +251,61 @@ export const POSE_SETS = [
       { title: 'how lovely are thy branches', instruction: 'Stretch your arms out like branches' },
       { title: 'o tannenbaum', instruction: 'Sway side to side' },
       { title: 'thy leaves are so unchanging', instruction: 'Freeze like a statue, serious face' },
+    ],
+  },
+
+  // ---------------------------------------------------------------- Love songs (public domain)
+  // Classic love songs whose writers died long ago, so the lyrics are free to use.
+  {
+    id: 'sweetheart',
+    category: 'love',
+    name: 'Let Me Call You Sweetheart',
+    description: '4 shots · for couples · 1910',
+    footer: 'sweetheart',
+    poses: [
+      { title: 'let me call you sweetheart', instruction: 'Lean your heads together, soft smiles' },
+      { title: "i'm in love with you", instruction: 'Look at each other, not the camera' },
+      { title: 'let me hear you whisper', instruction: 'One whispers in the other’s ear' },
+      { title: 'that you love me too', instruction: 'Make one big heart with your hands together' },
+    ],
+  },
+  {
+    id: 'daisy',
+    category: 'love',
+    name: 'Daisy Bell',
+    description: '4 shots · for couples · 1892',
+    footer: 'a bicycle built for two',
+    poses: [
+      { title: 'daisy, daisy', instruction: 'Cheek to cheek, big grins' },
+      { title: 'give me your answer, do', instruction: 'One pretends to propose, the other gasps' },
+      { title: "i'm half crazy", instruction: 'Both pull a silly, love-struck face' },
+      { title: 'all for the love of you', instruction: 'Forehead to forehead, eyes closed' },
+    ],
+  },
+  {
+    id: 'truly',
+    category: 'love',
+    name: 'I Love You Truly',
+    description: '4 shots · for couples · 1901',
+    footer: 'i love you truly',
+    poses: [
+      { title: 'i love you truly', instruction: 'Hug from behind, both smile at the camera' },
+      { title: 'truly, dear', instruction: 'Kiss on the cheek' },
+      { title: 'fades into dreams', instruction: 'Rest your head on their shoulder, eyes closed' },
+      { title: 'when i feel you are near', instruction: 'Hold hands up to the camera' },
+    ],
+  },
+  {
+    id: 'greensleeves',
+    category: 'love',
+    name: 'Greensleeves',
+    description: '4 shots · traditional',
+    footer: 'my delight',
+    poses: [
+      { title: 'greensleeves was all my joy', instruction: 'Laugh together like someone told a joke' },
+      { title: 'greensleeves was my delight', instruction: 'Gaze at each other, dreamy eyes' },
+      { title: 'greensleeves was my heart of gold', instruction: 'Hands on hearts' },
+      { title: 'and who but my lady greensleeves', instruction: 'Take a royal bow and curtsy' },
     ],
   },
 ];
