@@ -17,6 +17,7 @@ Everything happens on your device. No sign-up, no uploads.
 - 🎬 **Video edit**: the session recording with each photo dropping in, ending on your strip
 - 💾 **Save**: strip (PNG, print-ready 2×6"), single photos (JPG), video (MP4 or WebM)
 - 📱 **Phone friendly**: Save buttons download straight to your phone, a Share button sends to WhatsApp/Instagram or "Save to Photos", front/back camera switch
+- 🔍 **0.5x / 1x zoom**: zoom out to fit more of you (and your friends) in each photo
 - ↺ Retake the last shot, finish early, mute sounds, mirror the selfie camera
 
 ## Tips
