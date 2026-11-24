@@ -18,6 +18,7 @@ Everything happens on your device. No sign-up, no uploads.
 - 💾 **Save**: strip (PNG, print-ready 2×6"), single photos (JPG), video (MP4 or WebM)
 - 📱 **Phone friendly**: Save buttons download straight to your phone, a Share button sends to WhatsApp/Instagram or "Save to Photos", front/back camera switch
 - 🔍 **Real 0.5x zoom** on phones that allow it: uses the camera's wide zoom or ultra-wide lens (hidden when the phone doesn't share it with the browser)
+- ⚡ **Flash on/off**: the phone flashlight on the back camera, or a bright "screen flash" for selfies and laptops
 - ↺ Retake the last shot, finish early, mute sounds, mirror the selfie camera
 
 ## Tips
