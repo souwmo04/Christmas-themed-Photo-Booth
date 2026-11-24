@@ -5,8 +5,8 @@ import { FILTERS, filteredCopy } from '../render/filters.js';
 import { BORDERS, renderStrips, combineStrips } from '../render/strip.js';
 import { renderOverlayVideo } from '../render/overlayVideo.js';
 import { stopCamera } from '../camera/camera.js';
-import { canvasToBlob, fileStamp, saveFiles, canShareFiles } from '../utils/download.js';
-import { extensionFor, isMobile } from '../utils/device.js';
+import { canvasToBlob, fileStamp, saveFiles, canShareFiles, shareAvailable } from '../utils/download.js';
+import { extensionFor } from '../utils/device.js';
 
 export function mountResult(root, { go }) {
   // Photos are taken: turn the camera light off.
@@ -42,6 +42,7 @@ export function mountResult(root, { go }) {
           <div class="actions">
             <button class="btn btn--primary" id="dl-strip">${icons.download} Save strip${shots.length > 4 ? 's' : ''}</button>
             <button class="btn btn--ghost" id="dl-photos">${icons.download} Single photos</button>
+            <button class="btn btn--ghost" id="share" hidden>${icons.share} Share</button>
           </div>
 
           <div class="card video-card" id="video-card">
@@ -155,7 +156,6 @@ export function mountResult(root, { go }) {
     if (!files.length) return;
     const result = await saveFiles(files);
     if (result === 'downloaded') toast(`${what} saved to your downloads ✨`);
-    else if (result === 'shared') toast('Shared ✨');
   }
 
   // ---- Downloads ----
@@ -165,15 +165,22 @@ export function mountResult(root, { go }) {
   });
 
   $('#dl-photos', root).addEventListener('click', async () => {
-    if (!photoFiles.length) {
-      photoFiles = await buildPhotoFiles();
-      // On phones the share sheet needs a fresh tap after the files are prepared.
-      if (isMobile && canShareFiles(photoFiles)) {
-        toast('Photos ready: tap again to save');
-        return;
-      }
-    }
+    if (!photoFiles.length) photoFiles = await buildPhotoFiles();
     save(photoFiles, 'Photos');
+  });
+
+  // Share sheet (WhatsApp, Instagram, Save to Photos on iPhone…): strips plus the video if it's made.
+  const shareBtn = $('#share', root);
+  shareBtn.hidden = !shareAvailable();
+  shareBtn.addEventListener('click', async () => {
+    const files = videoFile ? [...stripFiles, videoFile] : stripFiles;
+    if (!files.length) return;
+    if (!canShareFiles(files)) {
+      toast("This browser can't share files. Use Save instead.");
+      return;
+    }
+    const result = await saveFiles(files, { preferShare: true });
+    if (result === 'shared') toast('Shared ✨');
   });
 
   // ---- Video ----
