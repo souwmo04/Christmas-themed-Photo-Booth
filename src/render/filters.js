@@ -195,10 +195,11 @@ export function drawFiltered(ctx, source, src, dst, filterId) {
     if (filter.ops.length) {
       const t = ctx.getTransform();
       // getImageData works in device pixels, so map the box through the current transform.
-      const x = Math.round(t.a * dst.x + t.e);
-      const y = Math.round(t.d * dst.y + t.f);
-      const w = Math.round(t.a * dst.w);
-      const h = Math.round(t.d * dst.h);
+      // abs/min keep this correct when the canvas is mirrored (negative scale).
+      const x = Math.round(Math.min(t.a * dst.x, t.a * (dst.x + dst.w)) + t.e);
+      const y = Math.round(Math.min(t.d * dst.y, t.d * (dst.y + dst.h)) + t.f);
+      const w = Math.round(Math.abs(t.a * dst.w));
+      const h = Math.round(Math.abs(t.d * dst.h));
       applyMatrix(ctx, x, y, w, h, matrixFor(filter));
     }
   }
