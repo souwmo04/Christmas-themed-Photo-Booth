@@ -60,14 +60,70 @@
   overflow: hidden;
   background: #0d0d10;
 }
-.window__video {
+/* The live feed; --z is the zoom (1 fills the window, 0.5 shows twice as much). */
+.window__feed {
+  position: absolute;
+  inset: 0;
+}
+.window__video,
+.window__bg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
+.window__video {
+  transform: scale(var(--z, 1));
+  transition: transform 0.3s ease;
+}
 .window__video.is-mirrored {
-  transform: scaleX(-1);
+  transform: scale(calc(var(--z, 1) * -1), var(--z, 1));
+}
+/* Soft blurred copy behind the zoomed-out feed, the same fill the saved photo gets. */
+.window__bg {
+  display: none;
+  filter: blur(18px) brightness(0.78);
+  transform: scale(1.15);
+}
+.window__bg.is-mirrored {
+  transform: scale(-1.15, 1.15);
+}
+.window__screen.is-wide .window__bg {
+  display: block;
+}
+
+.zoom {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(27, 13, 20, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 2;
+}
+.zoom__btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  min-width: 40px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cream);
+  font: 600 13px var(--font-ui);
+}
+.zoom__btn[aria-pressed='true'] {
+  background: var(--cream);
+  color: var(--ink);
+}
+.window__flip {
+  z-index: 2;
 }
 .window__fx {
   position: absolute;
