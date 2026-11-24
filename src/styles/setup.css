@@ -261,6 +261,32 @@
   font-size: 12px;
 }
 
+/* Fun poses / Carol lyrics switch */
+.tabs {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(251, 245, 236, 0.08);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.tab {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: 600 13px var(--font-ui);
+}
+.tab[aria-selected='true'] {
+  background: var(--cream);
+  color: var(--ink);
+}
+
 .sets {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

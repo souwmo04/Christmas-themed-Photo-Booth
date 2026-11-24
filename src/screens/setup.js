@@ -1,6 +1,6 @@
 import { html, $, $$, escapeHtml, icons, toast } from '../utils/dom.js';
 import { state, savePrefs, resetSession } from '../state.js';
-import { POSE_SETS } from '../data/poses.js';
+import { POSE_SETS, CATEGORIES, getPoseSet } from '../data/poses.js';
 import { FILTERS, applyPreview } from '../render/filters.js';
 import {
   startCamera,
@@ -47,10 +47,15 @@ export function mountSetup(root, { go }) {
 
           <div class="field">
             <span class="label">Poses</span>
+            <div class="tabs" id="cats" role="tablist" aria-label="Pose categories">
+              ${CATEGORIES.map(
+                (c) => `<button class="tab" role="tab" data-cat="${c.id}" aria-selected="${c.id === getPoseSet(state.poseSet).category}">${escapeHtml(c.name)}</button>`,
+              ).join('')}
+            </div>
             <div class="sets" id="sets" role="radiogroup" aria-label="Pose set">
               ${POSE_SETS.map(
                 (s) => `
-                <button class="set" role="radio" data-set="${s.id}" aria-checked="${s.id === state.poseSet}">
+                <button class="set" role="radio" data-set="${s.id}" data-cat="${s.category}" aria-checked="${s.id === state.poseSet}" ${s.category === getPoseSet(state.poseSet).category ? '' : 'hidden'}>
                   <span class="set__name">${escapeHtml(s.name)}</span>
                   <span class="set__meta">${escapeHtml(s.description)}</span>
                   <span class="script set__first">${escapeHtml(s.poses[0].title)}…</span>
@@ -155,6 +160,14 @@ export function mountSetup(root, { go }) {
     $$('[data-filter]', root).forEach((c) => c.setAttribute('aria-pressed', c === chip));
     refreshPreview();
     savePrefs();
+  });
+
+  // Pose categories (tabs): show only that category's sets
+  $('#cats', root).addEventListener('click', (e) => {
+    const tab = e.target.closest('[data-cat]');
+    if (!tab) return;
+    $$('[data-cat].tab', root).forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+    $$('.set', root).forEach((s) => (s.hidden = s.dataset.cat !== tab.dataset.cat));
   });
 
   // Pose sets
