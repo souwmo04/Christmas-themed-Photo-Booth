@@ -17,6 +17,7 @@ export function boothWindowHtml({ flip = false } = {}) {
         <div class="zoom" role="group" aria-label="Zoom" hidden>
           ${ZOOMS.map((z) => `<button class="zoom__btn" data-zoom="${z}" aria-pressed="false">${z}x</button>`).join('')}
         </div>
+        <button class="icon-btn flash-toggle" aria-pressed="false" aria-label="Flash off" hidden></button>
         ${flip ? '<button class="icon-btn window__flip" hidden aria-label="Switch camera"></button>' : ''}
       </div>
     </div>`;
