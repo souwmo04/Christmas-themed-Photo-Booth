@@ -26,6 +26,7 @@ function loadPrefs() {
 export const state = {
   ...loadPrefs(),
   footerText: '',
+  stickers: [], // emoji stickers on the strip (this session only)
   // Filled during a session:
   shots: [], // raw (unfiltered) photo canvases
   shotTimes: [], // seconds from the start of the recording
@@ -48,4 +49,5 @@ export function resetSession() {
   state.shots = [];
   state.shotTimes = [];
   state.rawVideo = null;
+  state.stickers = [];
 }
