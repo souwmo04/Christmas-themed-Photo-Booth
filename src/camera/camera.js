@@ -1,29 +1,99 @@
-// Camera access: start, switch front/back, stop, and grab a cropped frame.
+// Camera access: start, switch front/back, real 0.5x zoom, stop, and grab a cropped frame.
 
 let stream = null;
 let currentFacing = 'user';
+let zoomSupport = { type: 'none' };
 
 export const getStream = () => stream;
 
-export async function startCamera(facing = 'user') {
+export async function startCamera(facing = 'user', { deviceId } = {}) {
   stopCamera();
   currentFacing = facing;
   // Ask for 4:3: phone sensors are 4:3, and 16:9 is a crop of it, so 4:3 gives the widest view.
-  const base = { width: { ideal: 1280 }, height: { ideal: 960 }, frameRate: { ideal: 30 } };
+  // `zoom: true` asks Chrome to expose the camera's real zoom range (some phones go below 1x).
+  const base = { width: { ideal: 1280 }, height: { ideal: 960 }, frameRate: { ideal: 30 }, zoom: true };
+  const which = deviceId ? { deviceId: { exact: deviceId } } : { facingMode: { ideal: facing } };
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { ...base, facingMode: { ideal: facing } },
-      audio: false,
-    });
+    stream = await navigator.mediaDevices.getUserMedia({ video: { ...base, ...which }, audio: false });
   } catch (err) {
-    // Some laptops reject facingMode; retry with any camera.
-    if (err.name === 'OverconstrainedError') {
-      stream = await navigator.mediaDevices.getUserMedia({ video: base, audio: false });
+    // Some laptops reject facingMode or zoom; retry with any camera.
+    if (err.name === 'OverconstrainedError' || err.name === 'TypeError') {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: base.width, height: base.height },
+        audio: false,
+      });
     } else {
       throw err;
     }
   }
+  zoomSupport = await detectZoom();
   return stream;
+}
+
+// ---------- Real 0.5x ----------
+// A phone's 0.5x is a different (ultra-wide) lens or a zoom range below 1x. The browser can only
+// use it when the phone exposes it, so we look for both and hide 0.5x if neither exists.
+
+const track = () => stream?.getVideoTracks()[0];
+
+async function detectZoom() {
+  const t = track();
+  const caps = t?.getCapabilities?.() ?? {};
+  // 1) Hardware zoom that goes below 1x (some Android phones' back cameras).
+  if (caps.zoom && caps.zoom.min < 1) {
+    return { type: 'hardware', min: caps.zoom.min, max: caps.zoom.max };
+  }
+  // 2) A separate ultra-wide lens with the same facing (iPhone Safari lists "Back Ultra Wide Camera").
+  try {
+    const current = t?.getSettings?.().deviceId;
+    const devices = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'videoinput');
+    const isBack = (label) => /back|rear|environment/i.test(label);
+    const sameSide = (d) => (currentFacing === 'user' ? !isBack(d.label) : isBack(d.label));
+    const wide = devices.find((d) => /ultra\s*wide/i.test(d.label) && sameSide(d));
+    if (wide) {
+      const normal =
+        wide.deviceId === current
+          ? zoomSupport.normalId // we're already on the wide lens: keep the 1x lens we came from
+          : current;
+      return { type: 'lens', wideId: wide.deviceId, normalId: normal, onWide: wide.deviceId === current };
+    }
+  } catch {
+    /* labels unavailable */
+  }
+  return { type: 'none' };
+}
+
+export const getZoomSupport = () => zoomSupport;
+export const hasWideZoom = () => zoomSupport.type !== 'none';
+
+// The zoom the camera is at right now (1 or 0.5).
+export function currentZoom() {
+  if (zoomSupport.type === 'hardware') return (track()?.getSettings?.().zoom ?? 1) < 1 ? 0.5 : 1;
+  if (zoomSupport.type === 'lens') return zoomSupport.onWide ? 0.5 : 1;
+  return 1;
+}
+
+/**
+ * Sets 1x or 0.5x. Hardware zoom changes the same stream (safe while recording);
+ * a lens switch restarts the camera and returns the new stream.
+ * @returns {Promise<MediaStream|null>} new stream if the camera was restarted
+ */
+export async function setZoom(zoom) {
+  const s = zoomSupport;
+  if (s.type === 'hardware') {
+    const value = zoom < 1 ? Math.max(s.min, 0.5) : Math.min(Math.max(1, s.min), s.max);
+    await track().applyConstraints({ advanced: [{ zoom: value }] });
+    return null;
+  }
+  if (s.type === 'lens') {
+    const wantWide = zoom < 1;
+    if (wantWide === s.onWide) return null;
+    const id = wantWide ? s.wideId : s.normalId;
+    const facing = currentFacing;
+    await startCamera(facing, id ? { deviceId: id } : {});
+    return stream;
+  }
+  return null;
 }
 
 export function stopCamera() {
@@ -67,45 +137,19 @@ export function coverCrop(sw, sh, tw, th) {
   return { sx: (sw - w) / 2, sy: (sh - h) / 2, sw: w, sh: h };
 }
 
-/**
- * Draws a video frame into a w×h box at a zoom level.
- * zoom 1 = fills the box (edges cropped); zoom 0.5 = zoomed out, showing more of the frame.
- * Any empty space around the frame is filled with a soft blurred copy of it.
- */
-export function drawZoomed(ctx, video, w, h, { zoom = 1, mirror = false } = {}) {
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
-  const scale = Math.max(w / vw, h / vh) * zoom;
-  const dw = vw * scale;
-  const dh = vh * scale;
-  ctx.save();
-  if (mirror) {
-    ctx.translate(w, 0);
-    ctx.scale(-1, 1);
-  }
-  if (dw < w - 1 || dh < h - 1) {
-    // Blur by shrinking a cover crop to a few pixels and stretching it back up (works in every browser).
-    const tiny = document.createElement('canvas');
-    tiny.width = 48;
-    tiny.height = Math.max(1, Math.round((48 * h) / w));
-    const c = coverCrop(vw, vh, tiny.width, tiny.height);
-    tiny.getContext('2d').drawImage(video, c.sx, c.sy, c.sw, c.sh, 0, 0, tiny.width, tiny.height);
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(tiny, 0, 0, w, h);
-    ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.fillRect(0, 0, w, h);
-  }
-  ctx.drawImage(video, (w - dw) / 2, (h - dh) / 2, dw, dh);
-  ctx.restore();
-}
-
-// Grabs the current video frame as a 4:3 canvas (unfiltered), mirrored and zoomed as asked.
-export function captureFrame(video, { width = 1200, mirror = false, zoom = 1 } = {}) {
+// Grabs the current video frame as a 4:3 canvas (unfiltered), mirrored if asked.
+// Zoom is done by the camera itself (see setZoom), so the photo always shows what the camera sees.
+export function captureFrame(video, { width = 1200, mirror = false } = {}) {
   const height = Math.round((width * 3) / 4);
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
-  drawZoomed(canvas.getContext('2d'), video, width, height, { zoom, mirror });
+  const ctx = canvas.getContext('2d');
+  const c = coverCrop(video.videoWidth, video.videoHeight, width, height);
+  if (mirror) {
+    ctx.translate(width, 0);
+    ctx.scale(-1, 1);
+  }
+  ctx.drawImage(video, c.sx, c.sy, c.sw, c.sh, 0, 0, width, height);
   return canvas;
 }
