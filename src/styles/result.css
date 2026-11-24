@@ -175,6 +175,52 @@
   transition: width 0.25s linear;
 }
 
+/* Sticker tray */
+.field__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.field__head small {
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: var(--font-ui);
+  opacity: 0.8;
+  margin-left: 4px;
+}
+.sticker-tray {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 6px;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(251, 245, 236, 0.06);
+  box-shadow: inset 0 0 0 1px var(--line);
+  max-height: 172px;
+  overflow-y: auto;
+}
+.sticker-btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  aspect-ratio: 1;
+  min-height: 48px;
+  border-radius: 12px;
+  background: transparent;
+  font: 28px/1 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  transition:
+    transform 0.12s ease,
+    background 0.15s;
+  touch-action: manipulation;
+}
+.sticker-btn:hover {
+  background: rgba(251, 245, 236, 0.1);
+}
+.sticker-btn:active {
+  transform: scale(1.25) rotate(-8deg);
+}
+
 .input {
   width: 100%;
   min-height: 48px;

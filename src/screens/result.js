@@ -3,6 +3,7 @@ import { state, savePrefs } from '../state.js';
 import { getPoseSet } from '../data/poses.js';
 import { FILTERS, filteredCopy } from '../render/filters.js';
 import { BORDERS, renderStrips, combineStrips } from '../render/strip.js';
+import { STICKERS } from '../render/stickers.js';
 import { renderOverlayVideo } from '../render/overlayVideo.js';
 import { stopCamera } from '../camera/camera.js';
 import { canvasToBlob, fileStamp, saveFiles, canShareFiles, shareAvailable } from '../utils/download.js';
@@ -79,6 +80,19 @@ export function mountResult(root, { go }) {
             </div>
           </div>
 
+          <div class="field">
+            <div class="field__head">
+              <span class="label">Stickers <small>tap to add</small></span>
+              <span>
+                <button class="btn btn--link" id="sticker-undo" disabled>Undo</button>
+                <button class="btn btn--link" id="sticker-clear" disabled>Clear</button>
+              </span>
+            </div>
+            <div class="sticker-tray" id="stickers">
+              ${STICKERS.map((e) => `<button class="sticker-btn" data-sticker="${e}" aria-label="Add ${e} sticker">${e}</button>`).join('')}
+            </div>
+          </div>
+
           <label class="field">
             <span class="label">Caption</span>
             <input class="input" id="caption" maxlength="28" value="${escapeHtml(state.footerText)}" />
@@ -110,6 +124,7 @@ export function mountResult(root, { go }) {
     strips = await renderStrips(shots, {
       filter: state.filter,
       border: state.border,
+      stickers: state.stickers,
       caption: state.footerText.trim() || set.footer,
     });
     if (my !== renderToken) return;
@@ -146,7 +161,7 @@ export function mountResult(root, { go }) {
   }
 
   function markVideoStale() {
-    if (videoFile && videoFilter !== `${state.filter}|${state.border}|${state.footerText}`) {
+    if (videoFile && videoFilter !== `${state.filter}|${state.border}|${state.footerText}|${state.stickers.join()}`) {
       makeBtn.textContent = 'Remake video';
       makeBtn.hidden = false;
     }
@@ -212,7 +227,7 @@ export function mountResult(root, { go }) {
         onProgress: (p) => (bar.style.width = `${Math.round(p * 100)}%`),
       });
       videoFile = new File([blob], `christmas-photobooth_${stamp}.${extensionFor(mimeType)}`, { type: mimeType });
-      videoFilter = `${state.filter}|${state.border}|${state.footerText}`;
+      videoFilter = `${state.filter}|${state.border}|${state.footerText}|${state.stickers.join()}`;
 
       const player = document.createElement('video');
       player.className = 'video-card__media';
@@ -261,6 +276,31 @@ export function mountResult(root, { go }) {
     savePrefs();
     rerender();
   });
+
+  // ---- Stickers ----
+  const undoBtn = $('#sticker-undo', root);
+  const clearBtn = $('#sticker-clear', root);
+  const stickersChanged = () => {
+    undoBtn.disabled = clearBtn.disabled = state.stickers.length === 0;
+    rerender();
+  };
+  $('#stickers', root).addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-sticker]');
+    if (!btn) return;
+    state.stickers.push(btn.dataset.sticker);
+    stickersChanged();
+    // On phones the strip is above the tray, so confirm the tap.
+    toast(`${btn.dataset.sticker} added to your strip`, 1200);
+  });
+  undoBtn.addEventListener('click', () => {
+    state.stickers.pop();
+    stickersChanged();
+  });
+  clearBtn.addEventListener('click', () => {
+    state.stickers.length = 0;
+    stickersChanged();
+  });
+  undoBtn.disabled = clearBtn.disabled = state.stickers.length === 0;
 
   let typing;
   $('#caption', root).addEventListener('input', (e) => {
