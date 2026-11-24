@@ -16,7 +16,7 @@ Everything happens on your device. No sign-up, no uploads.
 - 🧾 **Photo strips** with 5 borders (Candy cane, White, Red velvet, Snowflakes, Black), your own caption and the date
 - 🎬 **Video edit**: the session recording with each photo dropping in, ending on your strip
 - 💾 **Save**: strip (PNG, print-ready 2×6"), single photos (JPG), video (MP4 or WebM)
-- 📱 **Phone friendly**: share sheet on phones so you can "Save to Photos", front/back camera switch
+- 📱 **Phone friendly**: Save buttons download straight to your phone, a Share button sends to WhatsApp/Instagram or "Save to Photos", front/back camera switch
 - ↺ Retake the last shot, finish early, mute sounds, mirror the selfie camera
 
 ## Tips
