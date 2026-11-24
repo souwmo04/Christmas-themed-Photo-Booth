@@ -12,7 +12,7 @@ Everything happens on your device. No sign-up, no uploads.
 
 - 🎞️ **Guided poses**: a script title and an instruction for every shot, with a 3-2-1 countdown
 - 📚 **3 pose sets**: Christmas Story (8 shots), Classic Strip (4), Besties (4, for groups)
-- 🎨 **7 filters**: Classic B&W, Vintage, Candy Cane, Frosty, Warm Glow, Film Noir, No filter
+- 🎨 **17 filters**: Classic B&W, Vintage, Candy Cane, Frosty, Warm Glow, Film Noir, Gingerbread, Hot Cocoa, Golden Hour, Mistletoe, Polaroid, Pine Forest, Silent Night, Silver Bells, Tinsel Pop, Retro 90s, No filter
 - 🧾 **Photo strips** with 5 borders (Candy cane, White, Red velvet, Snowflakes, Black), your own caption and the date
 - 🎬 **Video edit**: the session recording with each photo dropping in, ending on your strip
 - 💾 **Save**: strip (PNG, print-ready 2×6"), single photos (JPG), video (MP4 or WebM)
