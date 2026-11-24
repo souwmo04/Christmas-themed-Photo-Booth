@@ -14,6 +14,7 @@ import {
 import { SessionRecorder } from '../camera/recorder.js';
 import { boothWindowHtml, attachStream, setWindowMessage, flash, setView, bindZoom } from '../ui/boothWindow.js';
 import { beep, shutter, unlockAudio } from '../utils/sound.js';
+import { withFlash, flashKind, renderFlashButton, turnFlashOff } from '../ui/flash.js';
 
 const READ_TIME = 1700; // ms to read the pose before the countdown
 const AFTER_SHOT = 1000; // ms to look at the result before the next pose
@@ -81,6 +82,14 @@ export function mountShoot(root, { go }) {
   const liveZoom = getZoomSupport().type === 'hardware';
   const refreshView = () => setView(win, { zoom: currentZoom(), mirror, zoomAvailable: liveZoom });
   refreshView();
+
+  renderFlashButton(win, state.flash);
+  $('.flash-toggle', win).addEventListener('click', () => {
+    state.flash = !state.flash;
+    savePrefs();
+    renderFlashButton(win, state.flash);
+  });
+
   bindZoom(win, async (zoom) => {
     try {
       await setZoom(zoom);
@@ -141,14 +150,22 @@ export function mountShoot(root, { go }) {
     slot.classList.add('is-filled');
   }
 
-  function capture(i) {
-    const shot = captureFrame(video, { width: 1200, mirror });
-    state.shots[i] = shot;
-    state.shotTimes[i] = recorder?.available ? recorder.now() : 0;
+  // Takes photo i (with the flash if it's on). Returns false if a retake/leave cancelled it meanwhile.
+  async function capture(i, alive) {
+    const take = () => {
+      if (!alive()) return null;
+      const shot = captureFrame(video, { width: 1200, mirror });
+      state.shots[i] = shot;
+      state.shotTimes[i] = recorder?.available ? recorder.now() : 0;
+      return shot;
+    };
+    const shot = state.flash && flashKind() !== 'none' ? await withFlash(take) : take();
+    if (!shot) return false;
     shutter();
     flash(win);
     setThumb(i, shot);
     if (navigator.vibrate) navigator.vibrate(30);
+    return true;
   }
 
   async function runFrom(start) {
@@ -168,7 +185,7 @@ export function mountShoot(root, { go }) {
         if (!alive()) return;
       }
       countEl.textContent = '';
-      capture(i);
+      if (!(await capture(i, alive))) return;
       retakeBtn.disabled = false;
       await wait(AFTER_SHOT);
       if (!alive()) return;
@@ -232,6 +249,7 @@ export function mountShoot(root, { go }) {
 
   return () => {
     generation++;
+    turnFlashOff();
     if (!finished) recorder?.cancel();
     video.srcObject = null;
   };
