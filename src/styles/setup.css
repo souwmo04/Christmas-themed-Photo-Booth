@@ -270,8 +270,17 @@
   border-radius: 999px;
   background: rgba(251, 245, 236, 0.08);
   box-shadow: inset 0 0 0 1px var(--line);
+  /* Four tabs don't fit a phone: let them scroll sideways */
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 .tab {
+  flex: 0 0 auto;
+  white-space: nowrap;
   appearance: none;
   border: 0;
   cursor: pointer;

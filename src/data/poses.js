@@ -10,6 +10,7 @@ export const CATEGORIES = [
   { id: 'poses', name: 'Fun poses' },
   { id: 'carols', name: 'Carol lyrics' },
   { id: 'love', name: 'Love songs' },
+  { id: 'friends', name: 'Friends songs' },
 ];
 
 export const POSE_SETS = [
@@ -366,6 +367,66 @@ export const POSE_SETS = [
       { title: 'love me like you do', instruction: 'Ellie Goulding · Big movie-style hug' },
       { title: "say you won't let go", instruction: 'James Arthur · Hold on tight, don’t let go' },
       { title: 'beautiful things', instruction: 'Benson Boone · One lifts the other, or tries to' },
+    ],
+  },
+
+  // ---------------------------------------------------------------- Friends songs
+  // Auld Lang Syne is traditional (public domain), so its real lyrics are used.
+  // The modern sets use song titles only, like the modern love songs.
+  {
+    id: 'auldlang',
+    category: 'friends',
+    name: 'Auld Lang Syne',
+    description: '4 shots · traditional · old friends',
+    footer: 'old friends, new memories',
+    poses: [
+      { title: 'should auld acquaintance be forgot', instruction: 'Squeeze in for one big group hug' },
+      { title: 'and never brought to mind', instruction: 'Everyone scratches their head, totally confused' },
+      { title: "we'll take a cup o' kindness yet", instruction: 'Raise your cups or mugs, cheers!' },
+      { title: 'for auld lang syne', instruction: 'Link arms in a line and sway' },
+    ],
+  },
+  {
+    id: 'squad',
+    category: 'friends',
+    name: 'Squad Goals',
+    description: '4 shots · bestie anthems',
+    footer: 'squad goals',
+    poses: [
+      { title: 'count on me', instruction: 'Bruno Mars · Arms around each other’s shoulders' },
+      { title: 'best friend', instruction: 'Saweetie ft. Doja Cat · Point at your bestie, mouth open' },
+      { title: 'good as hell', instruction: 'Lizzo · Everyone does a big hair flip' },
+      { title: 'see you again', instruction: 'Wiz Khalifa ft. Charlie Puth · All point up to the sky' },
+    ],
+  },
+  {
+    id: 'dancefloor',
+    category: 'friends',
+    name: 'Dance Floor',
+    description: '8 shots · two strips · party hits',
+    footer: 'dance floor crew',
+    poses: [
+      { title: 'uptown funk', instruction: 'Bruno Mars · Strut toward the camera, too cool' },
+      { title: 'happy', instruction: 'Pharrell Williams · Your biggest, goofiest grins' },
+      { title: "can't stop the feeling", instruction: 'Justin Timberlake · Freeze mid-dance move' },
+      { title: 'shake it off', instruction: 'Taylor Swift · Shake your heads so your hair flies' },
+      { title: 'levitating', instruction: 'Dua Lipa · Pretend you’re floating in space' },
+      { title: 'shut up and dance', instruction: 'Walk the Moon · Grab a friend and spin' },
+      { title: 'dynamite', instruction: 'BTS · Finger guns, everyone' },
+      { title: 'gangnam style', instruction: 'PSY · Do the horse-riding dance' },
+    ],
+  },
+  {
+    id: 'roadtrip',
+    category: 'friends',
+    name: 'Road Trip',
+    description: '4 shots · singalong hits',
+    footer: 'road trip crew',
+    poses: [
+      { title: 'riptide', instruction: 'Vance Joy · Everyone plays air ukulele' },
+      { title: 'old town road', instruction: 'Lil Nas X · Cowboy pose, tip your hat' },
+      { title: 'sunflower', instruction: 'Post Malone & Swae Lee · Frame your face with your hands like petals' },
+      { title: 'feel it still', instruction: 'Portugal. The Man · Pretend to slide on sunglasses' },
     ],
   },
 ];
