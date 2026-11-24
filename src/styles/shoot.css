@@ -24,6 +24,8 @@
 .shoot__window {
   position: relative;
   width: 100%;
+  /* Keep title, window, pose text and buttons on one screen on laptops. */
+  max-width: max(300px, calc((100dvh - 390px) * 4 / 3 + 28px));
 }
 .shoot__ready {
   position: absolute;
