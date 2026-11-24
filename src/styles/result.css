@@ -62,14 +62,16 @@
   padding: 0 6px 6px;
   min-height: 200px;
 }
+/* A 4-photo strip is ~0.325 wide per 1 tall: cap the width so it never gets taller than the screen. */
 .strip {
-  width: min(44%, 190px);
+  --max-h: min(64dvh, 600px);
+  width: min(44%, 190px, calc(var(--max-h) * 0.325));
   height: auto;
   display: block;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
 }
 .developer__tray .strip:only-child {
-  width: min(56%, 220px);
+  width: min(56%, 220px, calc(var(--max-h) * 0.325));
 }
 .developer__tray.is-developing .strip {
   animation: develop 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -101,7 +103,8 @@
   gap: 10px;
 }
 .actions .btn {
-  flex: 1 1 160px;
+  flex: 1 1 150px;
+  white-space: nowrap;
 }
 .actions svg {
   width: 18px;
