@@ -14,6 +14,7 @@ import {
 } from '../camera/camera.js';
 import { boothWindowHtml, attachStream, setWindowMessage, setView, bindZoom } from '../ui/boothWindow.js';
 import { canRecord } from '../utils/device.js';
+import { renderFlashButton, flashKind } from '../ui/flash.js';
 
 export function mountSetup(root, { go }) {
   resetSession();
@@ -92,8 +93,16 @@ export function mountSetup(root, { go }) {
   const refreshPreview = () => {
     applyPreview($('.window__feed', root), fx, state.filter);
     setView(win, { zoom: currentZoom(), mirror: mirrored(), zoomAvailable: hasWideZoom() });
+    renderFlashButton(win, state.flash);
   };
   refreshPreview();
+
+  $('.flash-toggle', win).addEventListener('click', () => {
+    state.flash = !state.flash;
+    savePrefs();
+    renderFlashButton(win, state.flash);
+    toast(state.flash ? `Flash on${flashKind() === 'screen' ? ': your screen lights up for each photo' : ''}` : 'Flash off');
+  });
 
   // Real zoom: changes the camera's zoom or switches to the ultra-wide lens.
   async function applyZoom(zoom) {
